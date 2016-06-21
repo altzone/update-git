@@ -1,13 +1,21 @@
 #!/bin/bash
-msglog="/var/log/update_preprod.log"
+lock=/tmp/update_prod.lock
+msglog="/var/log/update_prod.log"
 log()
 {
         echo "$(date) ${1:-missing}" >> $msglog
 }
-dir="preprod.pole-talents.fr/htdocs"
-log "------------ Update PROD ------------"
-echo -n "GIT => " >> $msglog
-git=`git -C ~/$dir pull | tee -a $msglog`
-[[ "$git" =~ "Already up-to-date" ]]  || /usr/local/bin/gulp --cwd $dir deploy --prod &>> $msglog
-log "-------------------------------------"
+
+if [ -f $lock ]; then
+        log "Already run, exiting..."
+else
+        > $lock
+        dir="pole-talents.fr/htdocs"
+        log "------------ Update PROD ------------"
+        echo -n "GIT => " >> $msglog
+        git=`git -C ~/$dir pull | tee -a $msglog`
+        [[ "$git" =~ "Already up-to-date" ]]  || /usr/local/bin/gulp --cwd $dir deploy --prod &>> $msglog
+        log "-------------------------------------"
+        rm $lock
+fi
 exit 0
