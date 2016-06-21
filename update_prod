@@ -1,6 +1,6 @@
 #!/bin/bash
-lock=/tmp/update_preprod.lock
-msglog="/var/log/update_preprod.log"
+lock=/tmp/update_prod.lock
+msglog="/var/log/update_prod.log"
 log()
 {
         echo "$(date) ${1:-missing}" >> $msglog
@@ -10,12 +10,12 @@ if [ -f $lock ]; then
         log "Already run, exiting..."
 else
         > $lock
-        dir="preprod.pole-talents.fr/htdocs"
+        dir="pole-talents.fr/htdocs"
         git -C ~/$dir remote update &> /dev/null
         checkgit=`git -C ~/$dir status`
         if [[ ! "$checkgit" =~ "Your branch is up-to-date" ]]; then
                 log "------------ Update PROD ------------"
-                git -C ~/$dir pull | tee -a $msglog
+                git -C ~/$dir pull &>> $msglog
                 /usr/local/bin/gulp --cwd $dir deploy --prod &>> $msglog
                 log "-------------------------------------"
         fi
@@ -23,4 +23,3 @@ else
 
 fi
 exit 0
-
