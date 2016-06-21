@@ -1,12 +1,13 @@
 #!/bin/bash
-msglog="/var/log/update_prod.log"
+msglog="/var/log/update_preprod.log"
 log()
 {
         echo "$(date) ${1:-missing}" >> $msglog
 }
-cd ~/web/htdocs
+dir="preprod.pole-talents.fr/htdocs"
 log "------------ Update PROD ------------"
-git=`git pull | tee -a $msglog`
-[[ "$git" =~ "Already up-to-date" ]]  || /usr/local/bin/gulp deploy --prod &>> $msglog
+echo -n "GIT => " >> $msglog
+git=`git -C ~/$dir pull | tee -a $msglog`
+[[ "$git" =~ "Already up-to-date" ]]  || /usr/local/bin/gulp --cwd $dir deploy --prod &>> $msglog
 log "-------------------------------------"
 exit 0
