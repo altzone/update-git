@@ -1,6 +1,8 @@
 #!/bin/bash
+dir="pole-talents.fr/htdocs"
 lock=/tmp/update_prod.lock
 msglog="/var/log/update_prod.log"
+
 log()
 {
         echo "$(date) ${1:-missing}" >> $msglog
@@ -10,7 +12,6 @@ if [ -f $lock ]; then
         log "Already run, exiting..."
 else
         > $lock
-        dir="pole-talents.fr/htdocs"
         git -C ~/$dir remote update &> /dev/null
         checkgit=`git -C ~/$dir status`
         if [[ ! "$checkgit" =~ "Your branch is up-to-date" ]]; then
